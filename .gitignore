@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Docker volumes
+prometheus_data/
+grafana_data/
+redis_data/
+
+# OS
+.DS_Store
