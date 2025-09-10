@@ -1,6 +1,5 @@
 ## 📄 README.md
 
-```markdown
 # Docker & Observation Homework
 
 This projecapp/configst is part of the Docker and Observability homework.  
@@ -92,5 +91,3 @@ A Grafana dashboard was created with three main panels:
 * Created a Grafana dashboard to visualize cache behavior.
 
 This completes the homework requirements.
-
-```
