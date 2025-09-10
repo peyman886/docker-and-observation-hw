@@ -3,18 +3,14 @@ version: '3.8'
 services:
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
     networks:
       - app-network
 
   flask-app:
     build: .
-    ports:
-      - "9000:9000"
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -22,42 +18,34 @@ services:
       - FLASK_BIND_HOST=0.0.0.0
     depends_on:
       - redis
+    ports:
+      - "9000:9000"
     networks:
       - app-network
 
   prometheus:
-    image: docker.arvancloud.ir/prom/prometheus:v3.5.0
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./configs/alerting_rules.yml:/etc/prometheus/alerting_rules.yml
-      - prometheus_data:/prometheus
+    image: prom/prometheus:latest
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - flask-app
     networks:
       - app-network
 
   grafana:
-    image: docker.arvancloud.ir/grafana/grafana:12.1.1
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
+    image: grafana/grafana:latest
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
     networks:
       - app-network
-
-volumes:
-  redis_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   app-network:
